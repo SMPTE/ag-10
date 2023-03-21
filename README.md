@@ -1,10 +1,9 @@
-# SMPTE AG 10, Liaisons Delegates Rapporteurs
+# SMPTE _AG-10_ - _Liaisons Delegates Rapporteurs_
 
 _This repository is *public*._
 
-The current draft of the documents is available at https://smpte.github.io/ag-10/.
+* [Latest version](https://doc.smpte-doc.org/ag-10/main/)
+* [Redline against the latest edition](https://doc.smpte-doc.org/ag-10/main/pub-rl.html)
 
 Please consult [CONTRIBUTING.md](./CONTRIBUTING.md), [CONFIDENTIALITY.md](./CONFIDENTIALITY.md), [LICENSE.md](./LICENSE.md) and
 [PATENTS.md](./PATENTS.md) for important notices.
-
-Your feedback is welcome at https://github.com/SMPTE/ag-10/issues.
