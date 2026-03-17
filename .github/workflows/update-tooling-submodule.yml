@@ -1,0 +1,57 @@
+name: Update tooling submodule on new release
+
+on:
+  repository_dispatch:
+    types: [tooling-release]
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'SMPTE'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout template repo with submodule
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SUBMODULE_UPDATE_PAT }}
+          submodules: true
+          fetch-depth: 0
+
+      - name: Check if submodule is already at this SHA
+        id: check
+        env:
+          TARGET_SHA: ${{ github.event.client_payload.sha }}
+        run: |
+          CURRENT_SHA=$(git -C tooling rev-parse HEAD)
+          echo "current_sha=${CURRENT_SHA}" >> "$GITHUB_OUTPUT"
+          if [[ "$CURRENT_SHA" == "$TARGET_SHA" ]]; then
+            echo "already_up_to_date=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_up_to_date=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update submodule to release SHA
+        if: steps.check.outputs.already_up_to_date != 'true'
+        env:
+          TARGET_SHA: ${{ github.event.client_payload.sha }}
+        run: |
+          git -C tooling fetch origin
+          git -C tooling checkout "$TARGET_SHA"
+
+      - name: Commit and push to main
+        if: steps.check.outputs.already_up_to_date != 'true'
+        env:
+          TAG: ${{ github.event.client_payload.tag }}
+          TARGET_SHA: ${{ github.event.client_payload.sha }}
+          CURRENT_SHA: ${{ steps.check.outputs.current_sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tooling
+          git commit -m "bump tooling to ${TAG}
+
+          Updates tooling submodule from ${CURRENT_SHA} to ${TARGET_SHA}."
+          git push origin main
